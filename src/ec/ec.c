@@ -5,7 +5,7 @@
  *      Author: fatfredyy
  */
 
-#include "polarssl/ec.h"
+#include "ec.h"
 #include "polarssl/bignum.h"
 #include "polarssl/havege.h"
 #include <stdlib.h>
@@ -19,49 +19,44 @@
  */
 #define BITS_TO_LIMBS(i)  (((i) + biL - 1) / biL)
 
-struct {
-
-	ec_domain *domain;
-	mpi x;
-	mpi y;
-	mpi z;
-	unsigned char flags;
-
-} ec_point_s;
-
-
-
-struct {
-
-	ec_point *generator;
-	mpi order;
-	int curve_name;
-	mpi field;
-	mpi a;
-	mpi b;
-
-} ec_domain_s;
-
 ec_point *ec_point_new() {
 	ec_point *point = NULL;
-	point = malloc(sizeof(&point));
+	point = malloc(sizeof(ec_point));
 	point->flags = AFFINE | AT_INFINITY;
 	return point;
 }
 
-int convert_to_Jacobi(ec_point *point){
+int convert_to_Jacobi(ec_point *point) {
 	point->flags &= JACOBI_PROJECTIVE;
 	mpi_lset(&point->z, 1);
 }
 
 int convert_to_affine(ec_point *point);
 
-int double_ec_point(ec_point *point){
+int double_ec_point(ec_point *point) {
 	mpi A, B, C, D, X3, Y3, Z3;
 
 	mpi_init(&A, &B, &C, &D, &X3, &Y3, &Z3, NULL);
 
-	A = mpi_mul_mpi(&A, point->y, point->y);
+	mpi_mul_mpi(&A, &point->y, &point->y);
+	mpi_mod_mpi(&A, &A, &point->domain->order);
+	//A = Y1^2 (mod p)
+
+	mpi_mul_mpi(&B, &point->x, &A);
+	mpi_mul_int(&B, &B, 4);
+	mpi_mod_mpi(&B, &B, &point->domain->order);
+	//B = 4*X1*A
+
+	mpi_mul_mpi(&C, &A, &A);
+	mpi_mul_int(&C, &C, 8);
+	mpi_mod_mpi(&C, &C, &point->domain->order);
+	//C = 8*A^2
+
+	mpi_mul_mpi(&D, &point->x, &point->x);
+	mpi_mul_int(&D, &point->x, 3);
+
+	mpi
+
 
 	mpi_free(&A, &B, &C, &D, &X3, &Y3, &Z3, NULL);
 
