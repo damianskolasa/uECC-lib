@@ -8,8 +8,7 @@
 #ifndef EC_H_
 #define EC_H_
 
-#include "polarssl/bignum.h"
-#include "polarssl/ec_domains.h"
+#include "tfm.h"
 
 #define AT_INFINITY 0
 #define	AFFINE  1
@@ -24,9 +23,9 @@ typedef struct ec_domain_s ec_domain;
 struct ec_point_s {
 
 	ec_domain *domain;
-	mpi x;
-	mpi y;
-	mpi z;
+	fp_int x;
+	fp_int y;
+	fp_int z;
 	unsigned char flags;
 
 };
@@ -34,18 +33,18 @@ struct ec_point_s {
 struct ec_domain_s {
 
 	ec_point *generator;
-	mpi order;
+	fp_int order;
 	int curve_name;
-	mpi field;
-	mpi a;
-	mpi b;
+	fp_int field;
+	fp_int a;
+	fp_int b;
 
 };
 
 typedef struct {
 
 	ec_domain *domain;
-	mpi k;
+	fp_int k;
 
 } ec_private_key;
 
